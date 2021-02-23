@@ -1,6 +1,12 @@
 module Game where
 
--- define game state here
+data Cell = Empty Bool Int | Bomb Bool
+data Board = Array (Int, Int) Cell
+data GameStatus = Start | Continue | Gameover
+type NumberOfBombs = Int
+type BombsLeft = Int
+data GameState = GameState Board NumberOfBombs BombsLeft GameStatus
+
 
 initialGameState = 42
 
