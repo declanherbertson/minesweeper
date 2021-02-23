@@ -30,21 +30,21 @@ countBombsAround x y board w h =
 	(isBombHelper (x-1) (y-1) board w h)+
 	(isBombHelper (x-1) (y+1) board w h)
 
-initialGameState width height BombCount 
-	= GameState (array indexRange $ zip(range indexRange) (cycle [Empty])) BombCount (width * height - BombCount) Start
+initialGameState width height bombCount 
+	= GameState (array indexRange $ zip(range indexRange) (cycle [Empty])) bombCount (width * height - bombCount) Start
 	where indexRange = ((0,0),(width - 1, height -1))
 
 
 generateRandomPositions :: Set (Int,Int) -> Int -> Int -> Int -> Set (Int,Int)
 generateRandomPositions setSoFar 0 width height = setSoFar
-generateRandomPositions setSoFar NumLeft width height = do 
+generateRandomPositions setSoFar numLeft width height = do 
 	x1 <- randomIO :: IO Int 
 	y1 <- randomIO :: IO Int 
 	x <- x1 `rem` width
 	y <- y1 `rem` height
 	if Set.member (x,y) setSoFar
-		then GenerateRandomPositions setSoFar NumLeft width height
-	else GenerateRandomPositions (Set.insert (x,y) setSoFar) (NumLeft-1) width height
+		then GenerateRandomPositions setSoFar numLeft width height
+	else GenerateRandomPositions (Set.insert (x,y) setSoFar) (numLeft-1) width height
 	
 
 -- this is the function that is 'minesweeper', it takes an action and a state and returns the updated state

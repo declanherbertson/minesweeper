@@ -22,6 +22,9 @@ executable minesweeper
   other-modules:       Render, Game
   -- other-extensions:
   build-depends:       base >=4.14 && <4.15,
-                       gloss
+                       gloss,
+                       random,
+                       array,
+                       containers
   -- hs-source-dirs:
   default-language:    Haskell2010
