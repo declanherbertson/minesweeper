@@ -1,6 +1,6 @@
 module Game where
 
-data Cell = Empty Bool Int | Bomb Bool
+data Cell = Empty | Clicked Int | Bomb
 data Board = Array (Int, Int) Cell
 data GameStatus = Start | Continue | Gameover
 type NumberOfBombs = Int
