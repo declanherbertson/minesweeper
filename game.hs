@@ -60,7 +60,7 @@ setArrayValsToBombs a b = b // zip a (cycle [Bomb])
 onPress :: Int -> Int -> GameState -> GameState
 onPress x y (GameState b n t Start w h i) = 
 	onPress x y (GameState (setArrayValsToBombs 
-		(filter (==(x,y)) (Set.toList
+		(filter (/=(x,y)) (Set.toList
 			(generateRandomPositions  
 				(Set.singleton (x,y)) n w h 
 				(randomRs (0,w) (mkStdGen i))
@@ -71,8 +71,27 @@ onPress x y (GameState b n t Start w h i) =
 	n t Continue w h i
 	)
 	
-onPress _ _ g = g  --temporary
-
+onPress x y (GameState board bombCount tilesOpened Continue width height i) = do
+	let cella = board ! (x,y)
+	let bombsAround = countBombsAround x y board width height		
+	if x < 0 || y < 0 || x>= width || y >= height 
+	then GameState board bombCount tilesOpened Continue width height i
+	else 		
+		if cella == Bomb
+		then GameState board bombCount tilesOpened Gameover width height i
+		else			
+			if bombsAround == 0
+			then (onPress (x+1) y 
+				(onPress (x+1) (y-1)
+				(onPress (x) (y+1)
+				(onPress x (y-1) 
+				(onPress (x-1) (y-1) 
+				(onPress (x-1) y 
+				(onPress (x-1) (y+1)
+				(onPress (x+1) (y+1)
+				(GameState (board // [((x,y), Clicked bombsAround)]) bombCount tilesOpened Continue width height i)))))))))
+			else (GameState (board // [((x,y), Clicked bombsAround)]) bombCount tilesOpened Continue width height i)
+				
 
 -- this is the function that is 'minesweeper', it takes an action and a state and returns the updated state
 transformGame _ game = game
