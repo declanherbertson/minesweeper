@@ -137,9 +137,9 @@ transformGame (EventKey (MouseButton LeftButton) Up _ coords) game = do
 	then trace (show (r,c)) game
 	else trace (show (r,c)) (winningCheck(onPress r c game)) -- this is where you handle a click event for box at row r, col c
 
-transformGame (EventKey (MouseButton RightButton) Up _ coords) (GameState board bombCount tilesOpened Won width height i cc f) =	
-	let (r,c) = getCellFromCoords (GameState board bombCount tilesOpened Won width height i cc f) coords
-	in trace (show (r,c) ++ show (Set.toList f)) (GameState board bombCount tilesOpened Won width height i cc (addOrRemove f (r,c))) 
+transformGame (EventKey (MouseButton RightButton) Up _ coords) (GameState board bombCount tilesOpened state width height i cc f) =	
+	let (r,c) = getCellFromCoords (GameState board bombCount tilesOpened state width height i cc f) coords
+	in trace (show (r,c) ++ show (Set.toList (addOrRemove f (r,c)))) (GameState board bombCount tilesOpened state width height i cc (addOrRemove f (r,c))) 
 
 
 transformGame _ game = game
