@@ -20,7 +20,8 @@ type Width = Int
 type Height = Int
 type InitSeed = Int
 type CheatsOn = Bool
-data GameState = GameState Board NumberOfBombs NumberTilesOpened GameStatus Width Height InitSeed CheatsOn deriving Show
+type FlaggedSpots = Set (Int,Int)
+data GameState = GameState Board NumberOfBombs NumberTilesOpened GameStatus Width Height InitSeed CheatsOn FlaggedSpots deriving Show
 
 
 isBombHelper :: Int-> Int -> Board -> Int -> Int -> Int
@@ -41,7 +42,7 @@ countBombsAround x y board w h =
 
 initialGameState width height bombCount initSeed cheatsOn
 	= GameState ((array indexRange $ zip(range indexRange) (cycle [Empty]))) bombCount 0
-	Start width height initSeed cheatsOn
+	Start width height initSeed cheatsOn Set.empty
 	where indexRange = ((0,0),(width - 1, height -1))
 
 
@@ -67,7 +68,7 @@ isClicked (Clicked _) = True
 isClicked _ = False
 
 onPress :: Int -> Int -> GameState -> GameState
-onPress x y (GameState b n t Start w h i c) = 
+onPress x y (GameState b n t Start w h i c f) = 
 	onPress x y (GameState (setArrayValsToBombs 
 		(filter (/=(x,y)) (Set.toList
 			(generateRandomPositions  
@@ -77,22 +78,22 @@ onPress x y (GameState b n t Start w h i c) =
 			)
 		)
 	) b)
-	n t Continue w h i c
+	n t Continue w h i c f
 	)
 	
 
 	
-onPress x y (GameState board bombCount tilesOpened Continue width height i c) = do
+onPress x y (GameState board bombCount tilesOpened Continue width height i c f) = do
 	let cella = board ! (x,y)
 	let bombsAround = countBombsAround x y board width height		
 	if x < 0 || y < 0 || x>= width || y >= height 
-	then GameState board bombCount tilesOpened Continue width height i c
+	then GameState board bombCount tilesOpened Continue width height i c f
 	else 		
 		if cella == Bomb
-		then GameState board bombCount tilesOpened Gameover width height i c
+		then GameState board bombCount tilesOpened Gameover width height i c f
 		else
 		if isClicked cella then
-		GameState board bombCount tilesOpened Continue width height i c
+		GameState board bombCount tilesOpened Continue width height i c f
 		else			
 			if bombsAround == 0
 			then (onPress (x+1) y 
@@ -103,27 +104,44 @@ onPress x y (GameState board bombCount tilesOpened Continue width height i c) = 
 				(onPress (x-1) y 
 				(onPress (x-1) (y+1)
 				(onPress (x+1) (y+1)
-				(GameState (board // [((x,y), Clicked bombsAround)]) bombCount (tilesOpened + 1) Continue width height i c)))))))))
-			else (GameState (board // [((x,y), Clicked bombsAround)]) bombCount (tilesOpened+1) Continue width height i c)
+				(GameState (board // [((x,y), Clicked bombsAround)]) bombCount (tilesOpened + 1) Continue width height i c (Set.delete (x,y) f) )))))))))
+			else (GameState (board // [((x,y), Clicked bombsAround)]) bombCount (tilesOpened+1) Continue width height i c (Set.delete (x,y) f))
 
-onPress x y (GameState board bombCount tilesOpened Gameover width height i c) = (initialGameState width height bombCount (i+1) c)
-onPress x y (GameState board bombCount tilesOpened Won width height i c) = (initialGameState width height bombCount (i+1) c)
+onPress x y (GameState board bombCount tilesOpened Gameover width height i c f) = (initialGameState width height bombCount (i+1) c)
+onPress x y (GameState board bombCount tilesOpened Won width height i c f) = (initialGameState width height bombCount (i+1) c)
 
-winningCheck (GameState board bombCount tilesOpened Continue width height i c) = do
+winningCheck (GameState board bombCount tilesOpened Continue width height i c f) = do
 	if bombCount + tilesOpened == width * height
-	then (GameState board bombCount tilesOpened Won width height i c)
-	else trace (show (bombCount + tilesOpened)) (GameState board bombCount tilesOpened Continue width height i c)
+	then (GameState board bombCount tilesOpened Won width height i c f)
+	else trace (show (bombCount + tilesOpened)) (GameState board bombCount tilesOpened Continue width height i c f)
 
 winningCheck game = game
 
 --our origin is bottom left corner: board[0][0] = bottom left corner
 -- gloss origin is the center of the screen
-getCellFromCoords (GameState _ _ _ _ w h _ _) position = getCellFromPosition w h position
+getCellFromCoords (GameState _ _ _ _ w h _ _ _) position = getCellFromPosition w h position
+
+positionIsFlagged ::(Int,Int) -> GameState -> Bool
+positionIsFlagged pos (GameState board bombCount tilesOpened status width height i c f) = Set.member pos f
+
+addOrRemove :: Set(Int,Int) -> (Int,Int) -> Set(Int,Int)
+addOrRemove s val = 
+	if Set.member val s
+	then Set.delete val s
+	else Set.insert val s
 
 -- this is the function that is 'minesweeper', it takes an action and a state and returns the updated state
-transformGame (EventKey (MouseButton LeftButton) Up _ coords) game =	
+transformGame (EventKey (MouseButton LeftButton) Up _ coords) game = do
 	let (r,c) = getCellFromCoords game coords
-	in trace (show (r,c)) (winningCheck(onPress r c game)) -- this is where you handle a click event for box at row r, col c
+	if (positionIsFlagged (r,c) game)
+	then trace (show (r,c)) game
+	else trace (show (r,c)) (winningCheck(onPress r c game)) -- this is where you handle a click event for box at row r, col c
+
+transformGame (EventKey (MouseButton RightButton) Up _ coords) (GameState board bombCount tilesOpened Won width height i cc f) =	
+	let (r,c) = getCellFromCoords (GameState board bombCount tilesOpened Won width height i cc f) coords
+	in trace (show (r,c) ++ show (Set.toList f)) (GameState board bombCount tilesOpened Won width height i cc (addOrRemove f (r,c))) 
+
+
 transformGame _ game = game
 
 

@@ -39,7 +39,7 @@ boardGrid w h = Pictures [ position(Color white (mySquare w h)) x y w h | x<-[0.
 boardScreen board w h c = Pictures [ (boardGrid w h), (boardValues board w h c) ]
 
 gameAsPicture :: GameState -> Picture
-gameAsPicture (GameState board bombs opened status width height _ cheats)
+gameAsPicture (GameState board bombs opened status width height _ cheats flaggedSpots)
   | status == Start || status == Continue = boardScreen board width height cheats
   | status == Gameover = gameoverScreen
   | otherwise = winScreen
