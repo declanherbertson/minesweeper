@@ -58,7 +58,9 @@ generateRandomPositions setSoFar numLeft width height (x:t) (y:r)= do
 setArrayValsToBombs :: [(Int,Int)] -> Array(Int,Int) Cell -> Array (Int,Int) Cell
 --setArrayValsToBombs [] soFar = soFar
 --setArrayValsToBombs (h:t) soFar = setArrayValsToBombs t (soFar // [(h, Bomb)])
-setArrayValsToBombs a b = b // zip a (cycle [Bomb])
+setArrayValsToBombs a b = b // (zip a (cycle [Bomb]))
+
+
 isClicked :: Cell -> Bool
 isClicked (Clicked _) = True
 isClicked _ = False
@@ -69,8 +71,8 @@ onPress x y (GameState b n t Start w h i) =
 		(filter (/=(x,y)) (Set.toList
 			(generateRandomPositions  
 				(Set.singleton (x,y)) n w h 
-				(randomRs (0,w) (mkStdGen i))
-				(drop n (randomRs (0,h) (mkStdGen i)))
+				(randomRs (0,w-1) (mkStdGen i))
+				(drop n (randomRs (0,h-1) (mkStdGen i)))
 			)
 		)
 	) b)
@@ -103,13 +105,17 @@ onPress x y (GameState board bombCount tilesOpened Continue width height i) = do
 				(GameState (board // [((x,y), Clicked bombsAround)]) bombCount tilesOpened Continue width height i)))))))))
 			else (GameState (board // [((x,y), Clicked bombsAround)]) bombCount tilesOpened Continue width height i)
 
+onPress x y (GameState board bombCount tilesOpened Gameover width height i) = (GameState board bombCount tilesOpened Gameover width height i)
+
+
 --our origin is bottom left corner: board[0][0] = bottom left corner
 -- gloss origin is the center of the screen
 getCellFromCoords (GameState _ _ _ _ w h _ ) position = getCellFromPosition w h position
 
 -- this is the function that is 'minesweeper', it takes an action and a state and returns the updated state
-transformGame (EventKey (MouseButton LeftButton) Up _ coords) game = let (r,c) = getCellFromCoords game coords
-																																		 in trace (show (r,c)) game -- this is where you handle a click event for box at row r, col c
+transformGame (EventKey (MouseButton LeftButton) Up _ coords) game =	
+	let (r,c) = getCellFromCoords game coords
+	in trace (show (r,c)) (onPress r c game) -- this is where you handle a click event for box at row r, col c
 transformGame _ game = game
 
 
