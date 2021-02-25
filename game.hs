@@ -105,8 +105,8 @@ onPress x y (GameState board bombCount tilesOpened Continue width height i) = do
 				(GameState (board // [((x,y), Clicked bombsAround)]) bombCount (tilesOpened + 1) Continue width height i)))))))))
 			else (GameState (board // [((x,y), Clicked bombsAround)]) bombCount (tilesOpened+1) Continue width height i)
 
-onPress x y (GameState board bombCount tilesOpened Gameover width height i) = (GameState board bombCount tilesOpened Gameover width height i)
-onPress x y (GameState board bombCount tilesOpened Won width height i) = (GameState board bombCount tilesOpened Won width height i)
+onPress x y (GameState board bombCount tilesOpened Gameover width height i) = (initialGameState width height bombCount (i+1))
+onPress x y (GameState board bombCount tilesOpened Won width height i) = (initialGameState width height bombCount (i+1))
 
 winningCheck (GameState board bombCount tilesOpened Continue width height i) = do
 	if bombCount + tilesOpened == width * height
