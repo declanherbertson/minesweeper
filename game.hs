@@ -9,7 +9,7 @@ import System.Random
 data Cell = Empty | Clicked Int | Bomb
 	deriving (Eq, Show)
 type Board = (Array(Int, Int) Cell)
-data GameStatus = Start | Continue | Gameover deriving Show
+data GameStatus = Start | Continue | Gameover deriving (Show, Eq)
 type NumberOfBombs = Int
 type NumberTilesOpened = Int
 type Width = Int
