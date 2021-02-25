@@ -16,12 +16,14 @@ winScreen = blank
 
 square x y w h = rectangleWire (offsetX w) (offsetY h)
 
+picNum x y = text ((show x) ++ (show y))
+
 position pic x y w h = let offX = offsetX w
                            offY = offsetY h 
                         in Translate (x*offX - (startX w)) (y*offY - (startY h)) pic
 
-boardGrid board w h = Pictures [ position (Color white (square x y w h)) x y w h | x<-[1..fromIntegral(w)], y<-[1..fromIntegral(h)] ]
-boardScreen board w h = Pictures [ (boardGrid board w h) ]
+boardGrid w h = Pictures [ position (Color white (square x y w h)) x y w h | x<-[0..fromIntegral(w-1)], y<-[0..fromIntegral(h-1)] ]
+boardScreen board w h = Pictures [ (boardGrid w h) ]
 
 gameAsPicture :: GameState -> Picture
 gameAsPicture (GameState board bombs opened status width height _)

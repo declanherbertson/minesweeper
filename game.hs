@@ -1,6 +1,7 @@
 module Game where
 import Graphics.Gloss.Interface.Pure.Game
 import Debug.Trace
+import Constants
 
 import Data.Array
 import Data.Set (Set, lookupMin, lookupMax)
@@ -102,10 +103,13 @@ onPress x y (GameState board bombCount tilesOpened Continue width height i) = do
 				(GameState (board // [((x,y), Clicked bombsAround)]) bombCount tilesOpened Continue width height i)))))))))
 			else (GameState (board // [((x,y), Clicked bombsAround)]) bombCount tilesOpened Continue width height i)
 
+--our origin is bottom left corner: board[0][0] = bottom left corner
+-- gloss origin is the center of the screen
+getCellFromCoords (GameState _ _ _ _ w h _ ) position = getCellFromPosition w h position
+
 -- this is the function that is 'minesweeper', it takes an action and a state and returns the updated state
-getCellFromCoords (GameState _ _ _ _ w h _ ) (x, y) = trace "getCoords" (x,y)
 transformGame (EventKey (MouseButton LeftButton) Up _ coords) game = let (r,c) = getCellFromCoords game coords
-																																		 in trace (show r) game -- this is where you handle a click event for box at row r, col c
+																																		 in trace (show (r,c)) game -- this is where you handle a click event for box at row r, col c
 transformGame _ game = game
 
 
