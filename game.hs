@@ -9,7 +9,8 @@ import System.Random
 data Cell = Empty | Clicked Int | Bomb
 	deriving (Eq, Show)
 type Board = (Array(Int, Int) Cell)
-data GameStatus = Start | Continue | Gameover deriving (Show, Eq)
+data GameStatus = Start | Continue | Gameover 
+	deriving(Show, Eq)
 type NumberOfBombs = Int
 type NumberTilesOpened = Int
 type Width = Int
@@ -55,7 +56,9 @@ setArrayValsToBombs :: [(Int,Int)] -> Array(Int,Int) Cell -> Array (Int,Int) Cel
 --setArrayValsToBombs [] soFar = soFar
 --setArrayValsToBombs (h:t) soFar = setArrayValsToBombs t (soFar // [(h, Bomb)])
 setArrayValsToBombs a b = b // zip a (cycle [Bomb])
-
+isClicked :: Cell -> Bool
+isClicked (Clicked _) = True
+isClicked _ = False
 
 onPress :: Int -> Int -> GameState -> GameState
 onPress x y (GameState b n t Start w h i) = 
@@ -71,6 +74,8 @@ onPress x y (GameState b n t Start w h i) =
 	n t Continue w h i
 	)
 	
+
+	
 onPress x y (GameState board bombCount tilesOpened Continue width height i) = do
 	let cella = board ! (x,y)
 	let bombsAround = countBombsAround x y board width height		
@@ -79,6 +84,9 @@ onPress x y (GameState board bombCount tilesOpened Continue width height i) = do
 	else 		
 		if cella == Bomb
 		then GameState board bombCount tilesOpened Gameover width height i
+		else
+		if isClicked cella then
+		GameState board bombCount tilesOpened Continue width height i
 		else			
 			if bombsAround == 0
 			then (onPress (x+1) y 
@@ -91,23 +99,9 @@ onPress x y (GameState board bombCount tilesOpened Continue width height i) = do
 				(onPress (x+1) (y+1)
 				(GameState (board // [((x,y), Clicked bombsAround)]) bombCount tilesOpened Continue width height i)))))))))
 			else (GameState (board // [((x,y), Clicked bombsAround)]) bombCount tilesOpened Continue width height i)
-				
 
 -- this is the function that is 'minesweeper', it takes an action and a state and returns the updated state
 transformGame _ game = game
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
