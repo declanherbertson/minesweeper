@@ -19,7 +19,7 @@ mySquare w h = rectangleWire (offsetX w) (offsetY h)
 
 boardValue :: Cell -> Picture
 -- uncomment to see bombs
-boardValue Bomb = circle 10
+-- boardValue Bomb = circle 10
 boardValue (Clicked n) = translate centerTextX centerTextY (scale smallTextScale smallTextScale (text (show n)))
 boardValue _ = blank
 
