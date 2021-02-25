@@ -13,13 +13,13 @@ window = InWindow "Minesweeper" (screenWidth, screenHeight) (100, 100)
 
 gameoverScreen = translate textStartX 0 (scale textScale textScale (Color white (text "Boom.... :( Click to play again")))
 
-gameoverScreen = translate textStartX 0 (scale textScale textScale (Color white (text "You win! :) Click to play again")))
+winScreen = translate textStartX 0 (scale textScale textScale (Color white (text "You win! :) Click to play again")))
 
 mySquare w h = rectangleWire (offsetX w) (offsetY h)
 
 boardValue :: Cell -> Picture
 -- uncomment to see bombs
--- boardValue Bomb = circle 10
+boardValue Bomb = circle 10
 boardValue (Clicked n) = translate centerTextX centerTextY (scale smallTextScale smallTextScale (text (show n)))
 boardValue _ = blank
 
