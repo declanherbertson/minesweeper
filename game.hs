@@ -12,7 +12,7 @@ import System.Random
 data Cell = Empty | Clicked Int | Bomb
 	deriving (Eq, Show)
 type Board = (Array(Int, Int) Cell)
-data GameStatus = Start | Continue | Gameover 
+data GameStatus = Start | Continue | Gameover | Won
 	deriving(Show, Eq)
 type NumberOfBombs = Int
 type NumberTilesOpened = Int
@@ -39,7 +39,7 @@ countBombsAround x y board w h =
 	(isBombHelper (x-1) (y+1) board w h)
 
 initialGameState width height bombCount initSeed
-	= GameState ((array indexRange $ zip(range indexRange) (cycle [Empty]))) bombCount (width * height - bombCount) 
+	= GameState ((array indexRange $ zip(range indexRange) (cycle [Empty]))) bombCount 0
 	Start width height initSeed
 	where indexRange = ((0,0),(width - 1, height -1))
 
@@ -102,11 +102,18 @@ onPress x y (GameState board bombCount tilesOpened Continue width height i) = do
 				(onPress (x-1) y 
 				(onPress (x-1) (y+1)
 				(onPress (x+1) (y+1)
-				(GameState (board // [((x,y), Clicked bombsAround)]) bombCount tilesOpened Continue width height i)))))))))
-			else (GameState (board // [((x,y), Clicked bombsAround)]) bombCount tilesOpened Continue width height i)
+				(GameState (board // [((x,y), Clicked bombsAround)]) bombCount (tilesOpened + 1) Continue width height i)))))))))
+			else (GameState (board // [((x,y), Clicked bombsAround)]) bombCount (tilesOpened+1) Continue width height i)
 
 onPress x y (GameState board bombCount tilesOpened Gameover width height i) = (GameState board bombCount tilesOpened Gameover width height i)
+onPress x y (GameState board bombCount tilesOpened Won width height i) = (GameState board bombCount tilesOpened Won width height i)
 
+winningCheck (GameState board bombCount tilesOpened Continue width height i) = do
+	if bombCount + tilesOpened == width * height
+	then (GameState board bombCount tilesOpened Won width height i)
+	else trace (show (bombCount + tilesOpened)) (GameState board bombCount tilesOpened Continue width height i)
+
+winningCheck game = game
 
 --our origin is bottom left corner: board[0][0] = bottom left corner
 -- gloss origin is the center of the screen
@@ -115,7 +122,7 @@ getCellFromCoords (GameState _ _ _ _ w h _ ) position = getCellFromPosition w h 
 -- this is the function that is 'minesweeper', it takes an action and a state and returns the updated state
 transformGame (EventKey (MouseButton LeftButton) Up _ coords) game =	
 	let (r,c) = getCellFromCoords game coords
-	in trace (show (r,c)) (onPress r c game) -- this is where you handle a click event for box at row r, col c
+	in trace (show (r,c)) (winningCheck(onPress r c game)) -- this is where you handle a click event for box at row r, col c
 transformGame _ game = game
 
 
