@@ -6,6 +6,21 @@ screenWidth = 640
 screenHeight :: Int
 screenHeight = 640
 
+textStartX :: Float
+textStartX = 5 - (fromIntegral screenWidth / 2)
+
+textScale :: Float
+textScale = 0.3
+
+smallTextScale :: Float
+smallTextScale = 0.15
+
+centerTextX :: Float
+centerTextX = 0 - 5
+
+centerTextY :: Float
+centerTextY = 0 - 5
+
 startX :: Int -> Float
 startX w = (fromIntegral screenWidth / 2) - (offsetX w) /2 - 1
 

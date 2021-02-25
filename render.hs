@@ -11,16 +11,17 @@ foregroundColor = makeColor 255 255 255 255
 
 window = InWindow "Minesweeper" (screenWidth, screenHeight) (100, 100)
 
-gameoverScreen = blank 
+gameoverScreen = translate textStartX 0 (scale textScale textScale (Color white (text "Boom.... :( Click to play again")))
 
-winScreen = blank
+gameoverScreen = translate textStartX 0 (scale textScale textScale (Color white (text "You win! :) Click to play again")))
 
 mySquare w h = rectangleWire (offsetX w) (offsetY h)
 
 boardValue :: Cell -> Picture
-boardValue Bomb = circle 10
-boardValue Empty = blank
-boardValue (Clicked n) = circle 20
+-- uncomment to see bombs
+-- boardValue Bomb = circle 10
+boardValue (Clicked n) = translate centerTextX centerTextY (scale smallTextScale smallTextScale (text (show n)))
+boardValue _ = blank
 
 position :: Picture -> Int -> Int -> Int -> Int -> Picture
 position pic x y w h = let offX = offsetX w
