@@ -7,15 +7,15 @@ import qualified Data.Set as Set
 import System.Random
 
 data Cell = Empty | Clicked Int | Bomb
-	deriving (Eq)
+	deriving (Eq, Show)
 type Board = (Array(Int, Int) Cell)
-data GameStatus = Start | Continue | Gameover
+data GameStatus = Start | Continue | Gameover deriving Show
 type NumberOfBombs = Int
 type NumberTilesOpened = Int
 type Width = Int
 type Height = Int
 type InitSeed = Int
-data GameState = GameState Board NumberOfBombs NumberTilesOpened GameStatus Width Height InitSeed
+data GameState = GameState Board NumberOfBombs NumberTilesOpened GameStatus Width Height InitSeed deriving Show
 
 
 isBombHelper :: Int-> Int -> Board -> Int -> Int -> Int
