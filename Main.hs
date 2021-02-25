@@ -21,4 +21,6 @@ main = do
   randomSeed <- getLine
   let s = (read randomSeed :: Int)
 
+  -- putStrLn $ show $ initialGameState w h b s
+
   play window backgroundColor 30 (initialGameState w h b s) gameAsPicture transformGame (\_ -> id)
